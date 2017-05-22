@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(cg)
+project(xe)
 
 set(CMAKE_CXX_STANDARD 14)
 
 set(SOURCES Engine.cpp)
-add_library(cg ${SOURCES})
+add_library(xe ${SOURCES})
 
 # Enable warnings
 if(MSVC)
