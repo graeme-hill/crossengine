@@ -1,10 +1,7 @@
 #include "Engine.hpp"
 
-BEGIN_CG_NAMESPACE
+BEGIN_XE_NAMESPACE
 
-// void step()
-// {
-// 	Game::instance->step();
-// }
 
-END_CG_NAMESPACE
+
+END_XE_NAMESPACE

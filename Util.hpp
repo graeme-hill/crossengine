@@ -1,4 +1,4 @@
 #pragma once
 
-#define BEGIN_CG_NAMESPACE namespace xe {
-#define END_CG_NAMESPACE }
+#define BEGIN_XE_NAMESPACE namespace xe {
+#define END_XE_NAMESPACE }
