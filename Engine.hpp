@@ -40,7 +40,7 @@ Engine<TPlatform, TGame>::Engine() :
 	_window("(>^_^)>"),
 	_renderer(),
 	_game(_window, _renderer),
-	_fps([](int c) { std::cout << c << "\n"; }, 1000.0f)
+	_fps([](int c) { std::cout << c << "\n"; })
 {
 	Engine<TPlatform, TGame>::instance = this;
 	std::cout << "Engine started with window '" << _window.title() << "'\n";

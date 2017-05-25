@@ -10,7 +10,7 @@ using Clock = std::chrono::high_resolution_clock;
 class FpsMonitor
 {
 public:
-	FpsMonitor(std::function<void(int)> fpsCallback, float updateFrequency) :
+	FpsMonitor(std::function<void(int)> fpsCallback) :
 		_last(Clock::now()),
 		_lastFpsUpdate(_last),
 		_fps(0),
