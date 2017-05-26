@@ -24,4 +24,16 @@ std::string File::readAll(std::string filePath)
 	return content;
 }
 
+std::string File::readVertShaderText(std::string name)
+{
+	auto path = std::string("assets/") + name + "-vert.glsl";
+	return readAll(path);
+}
+
+std::string File::readFragShaderText(std::string name)
+{
+	auto path = std::string("assets/") + name + "-frag.glsl";
+	return readAll(path);
+}
+
 END_XE_NAMESPACE

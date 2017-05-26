@@ -11,6 +11,8 @@ class File
 {
 public:
 	static std::string readAll(std::string path);
+	static std::string readVertShaderText(std::string name);
+	static std::string readFragShaderText(std::string name);
 };
 
 END_XE_NAMESPACE
