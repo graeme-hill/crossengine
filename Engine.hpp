@@ -3,6 +3,8 @@
 #include "Util.hpp"
 #include "Platform.hpp"
 #include "FpsMonitor.hpp"
+#include "Keyboard.hpp"
+#include "InputController.hpp"
 #include <iostream>
 
 BEGIN_XE_NAMESPACE
@@ -18,6 +20,7 @@ public:
 
 	static Engine<TGame> *instance;
 private:
+	Keyboard _keyboard;
 	TWindow _window;
 	TRenderer _renderer;
 	TGame _game;
@@ -35,7 +38,7 @@ void step()
 
 template <typename TGame>
 Engine<TGame>::Engine() :
-	_window("(>^_^)>"),
+	_window("(>^_^)>", InputController(_keyboard)),
 	_renderer(),
 	_game(_window, _renderer),
 	_fps([](int c) { std::cout << c << "\n"; })

@@ -9,9 +9,10 @@ void keyCallback(
 	std::cout << "Key: " << key << " Scan Code: " << scanCode << std::endl;
 }
 
-GlfwWindow::GlfwWindow(std::string title) :
+GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 	_title(title),
-	_glfwWindow(nullptr)
+	_glfwWindow(nullptr),
+	_inputController(inputController)
 {
 	if (!glfwInit())
 	{

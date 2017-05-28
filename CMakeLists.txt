@@ -6,13 +6,15 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 set(SOURCES
-	File.cpp
 	glfw/GlfwWindow.cpp
 	gl/GlRenderer.cpp
 	gl/GlMesh.cpp
 	gl/GlShader.cpp
 	gl/GlShaderParameter.cpp
-	MeshData.cpp)
+	MeshData.cpp
+	Keyboard.cpp
+	InputController.cpp
+	File.cpp)
 add_library(xe ${SOURCES})
 
 target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
