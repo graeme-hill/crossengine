@@ -1,24 +1,22 @@
 #pragma once
 
 #include "Util.hpp"
+#include "Platform.hpp"
 #include "FpsMonitor.hpp"
 #include <iostream>
 
 BEGIN_XE_NAMESPACE
 
-template <typename TPlatform, typename TGame>
+template <typename TGame>
 class Engine
 {
 public:
-	using TWindow = typename TPlatform::Window;
-	using TRenderer = typename TPlatform::Renderer;
-
 	Engine();
 	~Engine();
 	void run();
 	void step();
 
-	static Engine<TPlatform, TGame> *instance;
+	static Engine<TGame> *instance;
 private:
 	TWindow _window;
 	TRenderer _renderer;
@@ -26,40 +24,40 @@ private:
 	FpsMonitor _fps;
 };
 
-template <typename TPlatform, typename TGame>
-Engine<TPlatform, TGame> *Engine<TPlatform, TGame>::instance = nullptr;
+template <typename TGame>
+Engine<TGame> *Engine<TGame>::instance = nullptr;
 
-template <typename TPlatform, typename TGame>
+template <typename TGame>
 void step()
 {
-	Engine<TPlatform, TGame>::instance->step();
+	Engine<TGame>::instance->step();
 }
 
-template <typename TPlatform, typename TGame>
-Engine<TPlatform, TGame>::Engine() :
+template <typename TGame>
+Engine<TGame>::Engine() :
 	_window("(>^_^)>"),
 	_renderer(),
 	_game(_window, _renderer),
 	_fps([](int c) { std::cout << c << "\n"; })
 {
-	Engine<TPlatform, TGame>::instance = this;
+	Engine<TGame>::instance = this;
 	std::cout << "Engine started with window '" << _window.title() << "'\n";
 }
 
-template <typename TPlatform, typename TGame>
-void Engine<TPlatform, TGame>::run()
+template <typename TGame>
+void Engine<TGame>::run()
 {
-	_window.loop(::xe::step<TPlatform, TGame>);
+	_window.loop(::xe::step<TGame>);
 }
 
-template <typename TPlatform, typename TGame>
-Engine<TPlatform, TGame>::~Engine()
+template <typename TGame>
+Engine<TGame>::~Engine()
 {
 	std::cout << "game ended\n";
 }
 
-template <typename TPlatform, typename TGame>
-void Engine<TPlatform, TGame>::step()
+template <typename TGame>
+void Engine<TGame>::step()
 {
 	float delta = _fps.tick();
 	_window.startFrame();
@@ -69,10 +67,10 @@ void Engine<TPlatform, TGame>::step()
 	_window.endFrame();
 }
 
-template <typename TPlatform, typename TGame>
-void runGame()
+template <typename TGame>
+void play()
 {
-	Engine<TPlatform, TGame> engine;
+	Engine<TGame> engine;
 	engine.run();
 	std::cout << "shutting down\n";
 }

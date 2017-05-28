@@ -3,11 +3,43 @@ project(xe)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(..)
-add_subdirectory(../xr ../xr)
-set(SOURCES File.cpp)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
+
+set(SOURCES
+	File.cpp
+	glfw/GlfwWindow.cpp
+	gl/GlRenderer.cpp
+	gl/GlMesh.cpp
+	gl/GlShader.cpp
+	gl/GlShaderParameter.cpp
+	MeshData.cpp)
 add_library(xe ${SOURCES})
-target_link_libraries(xe xr)
+
+target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
+
+# Require OpenGL
+find_package(OpenGL REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIR})
+target_link_libraries(xe ${OPENGL_gl_LIBRARY})
+if(NOT OPENGL_FOUND)
+    message(ERROR " OPENGL not found!")
+endif(NOT OPENGL_FOUND)
+
+# Require GLFW
+find_package(GLFW REQUIRED)
+include_directories(${GLFW_INCLUDE_DIR})
+target_link_libraries(xe ${GLFW_LIBRARY})
+if(NOT GLFW_FOUND)
+    message(ERROR " GLFW not found!")
+endif(NOT GLFW_FOUND)
+
+# Require GLEW
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+target_link_libraries(xe ${GLEW_LIBRARIES})
+if(NOT GLEW_FOUND)
+    message(ERROR " OPENGL not found!")
+endif(NOT GLEW_FOUND)
 
 # Require GLM
 find_package(GLM REQUIRED)
