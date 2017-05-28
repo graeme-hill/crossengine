@@ -16,14 +16,12 @@ void InputController::newFrame()
 
 void InputController::keyDown(TKey key)
 {
-	std::cout << "down " << ((int)key) << std::endl;
 	_keyboard._justPressed.push_back(key);
 	_keyboard._down.push_back(key);
 }
 
 void InputController::keyUp(TKey key)
 {
-	std::cout << "up   " << ((int)key) << std::endl;
 	_keyboard._justReleased.push_back(key);
 	_keyboard._justPressed.erase(
 		std::remove(_keyboard._justPressed.begin(),

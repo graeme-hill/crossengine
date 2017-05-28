@@ -18,6 +18,10 @@ public:
 	void run();
 	void step();
 
+	Keyboard &keyboard() { return _keyboard; }
+	TWindow &window() { return _window; }
+	TRenderer &renderer() { return _renderer; }
+
 	static Engine<TGame> *instance;
 private:
 	Keyboard _keyboard;
@@ -40,7 +44,7 @@ template <typename TGame>
 Engine<TGame>::Engine() :
 	_window("(>^_^)>", InputController(_keyboard)),
 	_renderer(),
-	_game(_window, _renderer),
+	_game(*this),
 	_fps([](int c) { std::cout << c << "\n"; })
 {
 	Engine<TGame>::instance = this;

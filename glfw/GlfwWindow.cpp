@@ -13,21 +13,16 @@ void keyCallback(
 	switch (action)
 	{
 	case GLFW_PRESS:
-		std::cout << "press\n";
 		window->_inputController.keyDown(converted);
 		break;
 	case GLFW_RELEASE:
-		std::cout << "release\n";
 		window->_inputController.keyUp(converted);
 		break;
 	case GLFW_REPEAT:
-		//std::cout << "repeat\n";
 		break;
 	case GLFW_KEY_UNKNOWN:
-		std::cout << "unknown\n";
 		break;
 	default:
-		std::cout << "???\n";
 		break;
 	}
 }
