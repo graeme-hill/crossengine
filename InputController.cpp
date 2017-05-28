@@ -1,5 +1,6 @@
 #include "InputController.hpp"
 #include <algorithm>
+#include <iostream>
 
 BEGIN_XE_NAMESPACE
 
@@ -15,12 +16,14 @@ void InputController::newFrame()
 
 void InputController::keyDown(TKey key)
 {
+	std::cout << "down " << ((int)key) << std::endl;
 	_keyboard._justPressed.push_back(key);
 	_keyboard._down.push_back(key);
 }
 
 void InputController::keyUp(TKey key)
 {
+	std::cout << "up   " << ((int)key) << std::endl;
 	_keyboard._justReleased.push_back(key);
 	_keyboard._justPressed.erase(
 		std::remove(_keyboard._justPressed.begin(),
@@ -28,7 +31,7 @@ void InputController::keyUp(TKey key)
 		_keyboard._justPressed.end());
 	_keyboard._down.erase(
 		std::remove(_keyboard._down.begin(),
-			_keyboard._justPressed.end(), key),
+			_keyboard._down.end(), key),
 		_keyboard._down.end());
 }
 

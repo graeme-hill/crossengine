@@ -4,9 +4,32 @@
 BEGIN_XE_NAMESPACE
 
 void keyCallback(
-	GLFWwindow *window, int key, int scanCode, int action, int mode)
+	GLFWwindow *glfwWindow, int key, int scanCode, int action, int mods)
 {
-	std::cout << "Key: " << key << " Scan Code: " << scanCode << std::endl;
+	auto converted = (TKey)key;
+	auto obj = glfwGetWindowUserPointer(glfwWindow);
+	GlfwWindow *window = static_cast<GlfwWindow *>(obj);
+
+	switch (action)
+	{
+	case GLFW_PRESS:
+		std::cout << "press\n";
+		window->_inputController.keyDown(converted);
+		break;
+	case GLFW_RELEASE:
+		std::cout << "release\n";
+		window->_inputController.keyUp(converted);
+		break;
+	case GLFW_REPEAT:
+		//std::cout << "repeat\n";
+		break;
+	case GLFW_KEY_UNKNOWN:
+		std::cout << "unknown\n";
+		break;
+	default:
+		std::cout << "???\n";
+		break;
+	}
 }
 
 GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
@@ -34,6 +57,8 @@ GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 		std::cout << "glewInit failed!\n";
 	}
 
+	glfwSetWindowUserPointer(_glfwWindow, (void *)this);
+
 	glfwSetKeyCallback(_glfwWindow, keyCallback);
 
 	glClearColor(0.0, 0.0, 1.0, 0.0);
@@ -58,6 +83,7 @@ void GlfwWindow::loop(void (*func)(void))
 
 void GlfwWindow::startFrame()
 {
+	_inputController.newFrame();
 	glfwPollEvents();
 }
 

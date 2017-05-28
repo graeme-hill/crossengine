@@ -20,6 +20,8 @@ public:
 	void startFrame();
 	void endFrame();
 
+	friend void keyCallback(
+		GLFWwindow *glfwWindow, int key, int scanCode, int action, int mods);
 private:
 	std::string _title;
 	GLFWwindow *_glfwWindow;

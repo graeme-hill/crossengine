@@ -5,6 +5,11 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(../glfw ../glfw)
+
 set(SOURCES
 	glfw/GlfwWindow.cpp
 	gl/GlRenderer.cpp
@@ -19,6 +24,14 @@ add_library(xe ${SOURCES})
 
 target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
 
+# Require GLEW
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+target_link_libraries(xe ${GLEW_LIBRARIES})
+if(NOT GLEW_FOUND)
+    message(ERROR " OPENGL not found!")
+endif(NOT GLEW_FOUND)
+
 # Require OpenGL
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
@@ -27,21 +40,7 @@ if(NOT OPENGL_FOUND)
     message(ERROR " OPENGL not found!")
 endif(NOT OPENGL_FOUND)
 
-# Require GLFW
-find_package(GLFW REQUIRED)
-include_directories(${GLFW_INCLUDE_DIR})
-target_link_libraries(xe ${GLFW_LIBRARY})
-if(NOT GLFW_FOUND)
-    message(ERROR " GLFW not found!")
-endif(NOT GLFW_FOUND)
-
-# Require GLEW
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
-target_link_libraries(xe ${GLEW_LIBRARIES})
-if(NOT GLEW_FOUND)
-    message(ERROR " OPENGL not found!")
-endif(NOT GLEW_FOUND)
+target_link_libraries(xe glfw)
 
 # Require GLM
 find_package(GLM REQUIRED)
