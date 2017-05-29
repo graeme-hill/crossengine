@@ -9,6 +9,7 @@ BEGIN_XE_NAMESPACE
 class GlRenderer
 {
 public:
+	GlRenderer();
 	void startFrame();
 	void endFrame();
 	void setActiveShader(const GlShader &shader);
