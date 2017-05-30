@@ -64,7 +64,8 @@ void appendFaceFromObjLineFlat(
 {
 	char _;
 	unsigned int v1p, v1uv, v1n, v2p, v2uv, v2n, v3p, v3uv, v3n;
-	iss >> v1p >> _ >> v1uv >> _ >> v1n >> v2p >> _ >> v2uv >> _ >> v2n >> v3p >> _ >> v3uv >> _ >> v3n;
+	iss >> v1p >> _ >> v1uv >> _ >> v1n >> v2p >> _ >> v2uv >> _ >> v2n >> v3p
+		>> _ >> v3uv >> _ >> v3n;
 
 	appendVertex(data, rawPositions, rawUvs, rawNormals, v1p, v1uv, v1n);
 	appendVertex(data, rawPositions, rawUvs, rawNormals, v2p, v2uv, v2n);
@@ -106,7 +107,8 @@ ModelData readObjFile(std::string path)
 		}
 		else if (prefix == "f")
 		{
-			appendFaceFromObjLineFlat(data, rawPositions, rawUvs, rawNormals, iss);
+			appendFaceFromObjLineFlat(
+				data, rawPositions, rawUvs, rawNormals, iss);
 		}
 	}
 
