@@ -19,7 +19,8 @@ set(SOURCES
 	MeshData.cpp
 	Keyboard.cpp
 	InputController.cpp
-	File.cpp)
+	File.cpp
+	AssetReaders.cpp)
 add_library(xe ${SOURCES})
 
 target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
