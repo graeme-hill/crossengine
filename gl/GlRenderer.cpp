@@ -6,7 +6,7 @@ GlRenderer::GlRenderer()
 {
 	glClearColor(0.0, 0.0, 1.0, 0.0);
 	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
 }
 
 void GlRenderer::startFrame()
