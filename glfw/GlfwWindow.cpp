@@ -56,8 +56,6 @@ GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 
 	glfwSetKeyCallback(_glfwWindow, keyCallback);
 
-	glClearColor(0.0, 0.0, 1.0, 0.0);
-
 	std::cout << "opening window\n";
 }
 
