@@ -3,6 +3,11 @@
 
 BEGIN_XE_NAMESPACE
 
+void framebufferResizeCallback(GLFWwindow *window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 void keyCallback(
 	GLFWwindow *glfwWindow, int key, int scanCode, int action, int mods)
 {
@@ -55,6 +60,7 @@ GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 	glfwSetWindowUserPointer(_glfwWindow, (void *)this);
 
 	glfwSetKeyCallback(_glfwWindow, keyCallback);
+	glfwSetFramebufferSizeCallback(_glfwWindow, framebufferResizeCallback);
 
 	std::cout << "opening window\n";
 }
