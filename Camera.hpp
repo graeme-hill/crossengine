@@ -102,7 +102,7 @@ private:
 
 	void updateView()
 	{
-		auto eye = glm::vec3(_focus.x, _altitude, _focus.y + (_altitude / 1.0));
+		auto eye = glm::vec3(_focus.x, _altitude, _focus.y + _altitude / 1.5f);
 		auto center = glm::vec3(_focus.x, 0.0f, _focus.y);
 		auto up = glm::vec3(0.0f, 1.0f, 0.0f);
 		_view = glm::lookAt(eye, center, up);

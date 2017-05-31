@@ -4,7 +4,7 @@ BEGIN_XE_NAMESPACE
 
 GlRenderer::GlRenderer()
 {
-	glClearColor(0.0, 0.0, 1.0, 0.0);
+	glClearColor(0.0, 0.1, 0.5, 0.1);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 }

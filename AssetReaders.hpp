@@ -14,6 +14,7 @@ struct ModelData
 	std::vector<unsigned int> indices;
 };
 
-ModelData readObjFile(std::string path);
+ModelData readObjFileFlat(std::string path);
+ModelData readObjFileSmooth(std::string path);
 
 END_XE_NAMESPACE
