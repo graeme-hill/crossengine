@@ -42,6 +42,10 @@ GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 		std::cout << "ERROR: Could not init GLFW!\n";
 	}
 
+	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+	//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	_glfwWindow = glfwCreateWindow(1600, 900, title.c_str(), NULL, NULL);
 	if (!_glfwWindow)
 	{
