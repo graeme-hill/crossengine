@@ -12,7 +12,7 @@ public:
 		_focus(0, 0),
 		_pitch(0),
 		_yaw(0),
-		_altitude(10),
+		_altitude(30),
 		_fovY(0.78539816339f),
 		_aspectRatio(4.0f / 3.0f),
 		_near(0.1f),

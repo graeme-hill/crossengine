@@ -42,7 +42,7 @@ GlfwWindow::GlfwWindow(std::string title, InputController inputController) :
 		std::cout << "ERROR: Could not init GLFW!\n";
 	}
 
-	_glfwWindow = glfwCreateWindow(800, 600, title.c_str(), NULL, NULL);
+	_glfwWindow = glfwCreateWindow(1600, 900, title.c_str(), NULL, NULL);
 	if (!_glfwWindow)
 	{
 		glfwTerminate();
