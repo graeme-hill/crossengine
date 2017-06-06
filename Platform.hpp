@@ -18,3 +18,20 @@ namespace xe
 	typedef GlShaderParameter TShaderParameter;
 }
 #endif
+
+#ifdef PLATFORM_WEB
+#include "webgl/WebGlWindow.hpp"
+#include "gles2/Gles2Renderer.hpp"
+#include "gles2/Gles2Mesh.hpp"
+#include "gles2/Gles2Shader.hpp"
+#include "gles2/Gles2ShaderParameter.hpp"
+
+namespace xe
+{
+	typedef WebGlWindow TWindow;
+	typedef Gles2Renderer TRenderer;
+	typedef Gles2Mesh TMesh;
+	typedef Gles2Shader TShader;
+	typedef Gles2ShaderParameter TShaderParameter;
+}
+#endif
