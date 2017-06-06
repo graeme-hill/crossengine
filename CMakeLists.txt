@@ -38,7 +38,9 @@ else()
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(../glfw ../glfw)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../glfw
+		${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe glfw)
