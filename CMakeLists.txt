@@ -35,6 +35,7 @@ else()
 		gl/GlMesh.cpp
 		gl/GlShader.cpp
 		gl/GlShaderParameter.cpp)
+
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -42,17 +43,13 @@ else()
 		${CMAKE_CURRENT_SOURCE_DIR}/../glfw
 		${CMAKE_CURRENT_BINARY_DIR}/glfw)
 
-	add_library(xe ${SOURCES})
-	target_link_libraries(xe glfw)
-	target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../glew
+		${CMAKE_CURRENT_BINARY_DIR}/glew)
 
-	# Require GLEW
-	find_package(GLEW REQUIRED)
-	include_directories(${GLEW_INCLUDE_DIRS})
-	target_link_libraries(xe ${GLEW_LIBRARIES})
-	if(NOT GLEW_FOUND)
-		message(ERROR " OPENGL not found!")
-	endif(NOT GLEW_FOUND)
+	add_library(xe ${SOURCES})
+	target_link_libraries(xe glfw glew)
+	target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
 
 	# Require OpenGL
 	find_package(OpenGL REQUIRED)
