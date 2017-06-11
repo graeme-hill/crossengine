@@ -47,6 +47,13 @@ else()
 		${CMAKE_CURRENT_SOURCE_DIR}/../glew
 		${CMAKE_CURRENT_BINARY_DIR}/glew)
 
+	set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	set(FLATBUFFERS_INSTALL OFF CACHE BOOL "" FORCE)
+	set(FLATBUFFERS_BUILD_SHAREDLIB OFF CACHE BOOL "" FORCE)
+	add_subdirectory(
+		${CMAKE_CURRENT_SOURCE_DIR}/../flatbuffers
+		${CMAKE_CURRENT_BINARY_DIR}/flatbuffers)
+
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe glfw glew)
 	target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
