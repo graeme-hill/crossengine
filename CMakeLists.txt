@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 include_directories(..)
+include_directories(../modules/flatbuffers/include)
 
 set(SOURCES
 	MeshData.cpp
