@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
-include_directories(..)
-include_directories(../modules/flatbuffers/include)
+include_directories(modules)
+include_directories(modules/flatbuffers/include)
 
 set(SOURCES
 	MeshData.cpp
@@ -40,20 +40,14 @@ else()
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../glfw
-		${CMAKE_CURRENT_BINARY_DIR}/glfw)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/glfw)
 
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../glew
-		${CMAKE_CURRENT_BINARY_DIR}/glew)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/glew)
 
 	set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(FLATBUFFERS_INSTALL OFF CACHE BOOL "" FORCE)
 	set(FLATBUFFERS_BUILD_SHAREDLIB OFF CACHE BOOL "" FORCE)
-	add_subdirectory(
-		${CMAKE_CURRENT_SOURCE_DIR}/../flatbuffers
-		${CMAKE_CURRENT_BINARY_DIR}/flatbuffers)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/flatbuffers)
 
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe glfw glew)
