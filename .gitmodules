@@ -1,0 +1,24 @@
+[submodule "modules/asio"]
+	path = modules/asio
+	url = git@github.com:graeme-hill/asio
+[submodule "modules/flatbuffers"]
+	path = modules/flatbuffers
+	url = git@github.com:graeme-hill/flatbuffers
+[submodule "modules/glew"]
+	path = modules/glew
+	url = git@github.com:graeme-hill/glew
+[submodule "modules/glfw"]
+	path = modules/glfw
+	url = git@github.com:graeme-hill/glfw
+[submodule "modules/glm"]
+	path = modules/glm
+	url = git@github.com:graeme-hill/glm
+[submodule "modules/websocketpp"]
+	path = modules/websocketpp
+	url = git@github.com:graeme-hill/websocketpp
+[submodule "modules/xs"]
+	path = modules/xs
+	url = git@github.com:graeme-hill/crossgameserver
+[submodule "modules/xt"]
+	path = modules/xt
+	url = git@github.com:graeme-hill/crosstext
