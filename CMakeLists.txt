@@ -7,13 +7,17 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 include_directories(modules)
 include_directories(modules/flatbuffers/include)
+include_directories(modules/asio/asio/include)
+include_directories(BEFORE modules/websocketpp)
 
 set(SOURCES
 	MeshData.cpp
 	Keyboard.cpp
 	InputController.cpp
 	File.cpp
-	AssetReaders.cpp)
+	AssetReaders.cpp
+	WebSocketClient.cpp
+	WebSocketServer.cpp)
 
 option(JS "JS" OFF)
 
@@ -72,5 +76,5 @@ if(MSVC)
 	endif()
 else()
 	# Update if necessary
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -Wno-unused-local-typedefs -pedantic")
 endif()
