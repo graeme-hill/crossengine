@@ -11,36 +11,42 @@ using websocketpp::lib::bind;
 
 BEGIN_XE_NAMESPACE
 
-typedef websocketpp::client<websocketpp::config::asio_client> client;
-typedef websocketpp::config::asio_client::message_type::ptr message_ptr;
-
 class WebSocketClient::Impl
 {
 public:
 	Impl(std::string uri);
+	~Impl();
+	void send(flatbuffers::DetachedBuffer const &blob);
 
 private:
-	void onMessage(client *c, websocketpp::connection_hdl hdl, message_ptr msg);
+	using Client = websocketpp::client<websocketpp::config::asio_client>;
+	using Message = websocketpp::config::asio_client::message_type::ptr;
+	using ConnectionHandle = websocketpp::connection_hdl;
+	using Connection = Client::connection_ptr;
+
+	void onMessage(Client *c, ConnectionHandle hdl, Message msg);
+
+	std::thread _thread;
+	Client _client;
+	Connection _connection;
 };
 
 WebSocketClient::Impl::Impl(std::string uri)
 {
-	websocketpp::client<websocketpp::config::asio_client> c;
-
 	try {
 		// Set logging to be pretty verbose (everything except message payloads)
-		c.set_access_channels(websocketpp::log::alevel::all);
-		c.clear_access_channels(websocketpp::log::alevel::frame_payload);
+		_client.set_access_channels(websocketpp::log::alevel::all);
+		_client.clear_access_channels(websocketpp::log::alevel::frame_payload);
 
 		// Initialize ASIO
-		c.init_asio();
+		_client.init_asio();
 
 		// Register our message handler
-		c.set_message_handler(
-			bind(&WebSocketClient::Impl::onMessage, this, &c, ::_1, ::_2));
+		_client.set_message_handler(bind(
+			&WebSocketClient::Impl::onMessage, this, &_client, ::_1, ::_2));
 
 		websocketpp::lib::error_code ec;
-		auto con = c.get_connection(uri, ec);
+		_connection = _client.get_connection(uri, ec);
 		if (ec)
 		{
 			std::cout << "could not create connection because: "
@@ -48,38 +54,69 @@ WebSocketClient::Impl::Impl(std::string uri)
 			return;
 		}
 
-		// Note that connect here only requests a connection. No network messages are
-		// exchanged until the event loop starts running in the next line.
-		c.connect(con);
+		// Note that connect here only requests a connection. No network
+		// messages are exchanged until the event loop starts running in the
+		// next line.
+		_client.connect(_connection);
 
 		// Start the ASIO io_service run loop
 		// this will cause a single connection to be made to the server. c.run()
 		// will exit when this connection is closed.
-		c.run();
+		_thread = std::thread([this]() { _client.run(); });
 	} catch (websocketpp::exception const & e) {
 		std::cout << e.what() << std::endl;
 	}
 }
 
-void WebSocketClient::Impl::onMessage(
-	client *c, websocketpp::connection_hdl hdl, message_ptr msg)
+WebSocketClient::Impl::~Impl()
 {
-	std::cout << "on_message called with hdl: " << hdl.lock().get()
-			  << " and message: " << msg->get_payload()
-			  << std::endl;
+	_thread.join();
+}
 
-	websocketpp::lib::error_code ec;
+void WebSocketClient::Impl::send(flatbuffers::DetachedBuffer const &blob)
+{
+	websocketpp::lib::error_code err;
 
-	c->send(hdl, msg->get_payload(), msg->get_opcode(), ec);
-	if (ec)
+	_client.send(
+		_connection->get_handle(),
+		blob.data(),
+		blob.size(),
+		websocketpp::frame::opcode::binary,
+		err);
+
+	if (err)
 	{
-		std::cout << "Echo failed because: " << ec.message() << std::endl;
+		std::cout << "Error sending message: " << err.message() << std::endl;
 	}
+}
+
+void WebSocketClient::Impl::onMessage(
+	Client *c, ConnectionHandle hdl, Message msg)
+{
+	auto blob = msg->get_payload();
+
+	std::cout << ">>" << blob << std::endl;
+	// std::cout << "on_message called with hdl: " << hdl.lock().get()
+	// 		  << " and message: " << msg->get_payload()
+	// 		  << std::endl;
+	//
+	// websocketpp::lib::error_code ec;
+	//
+	// c->send(hdl, msg->get_payload(), msg->get_opcode(), ec);
+	// if (ec)
+	// {
+	// 	std::cout << "Echo failed because: " << ec.message() << std::endl;
+	// }
 }
 
 WebSocketClient::WebSocketClient(std::string uri) :
 	_impl(std::make_unique<WebSocketClient::Impl>(uri))
 { }
+
+void WebSocketClient::send(flatbuffers::DetachedBuffer const &blob)
+{
+	_impl->send(blob);
+}
 
 WebSocketClient::~WebSocketClient() = default;
 

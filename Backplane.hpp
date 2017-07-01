@@ -5,11 +5,11 @@
 
 BEGIN_XE_NAMESPACE
 
-template <typename TMessage, typename THandler>
+template <typename TClient, typename THandler>
 class Backplane
 {
 public:
-	Backplane() { }
+	Backplane(TClient &client) { }
 	Backplane(Backplane const &) = delete;
 	Backplane(Backplane &&) = delete;
 	void post(flatbuffers::DetachedBuffer buffer);
@@ -17,16 +17,18 @@ public:
 
 private:
 	std::vector<flatbuffers::DetachedBuffer> _pending;
+	TClient _client;
 };
 
-template <typename TMessage, typename THandler>
-void Backplane<TMessage, THandler>::post(flatbuffers::DetachedBuffer buffer)
+template <typename TClient, typename THandler>
+void Backplane<TClient, THandler>::post(flatbuffers::DetachedBuffer buffer)
 {
+	_client.send(buffer);
 	_pending.push_back(std::move(buffer));
 }
 
-template <typename TMessage, typename THandler>
-void Backplane<TMessage, THandler>::receive(THandler &handler)
+template <typename TClient, typename THandler>
+void Backplane<TClient, THandler>::receive(THandler &handler)
 {
 	for (auto &buffer : _pending)
 	{

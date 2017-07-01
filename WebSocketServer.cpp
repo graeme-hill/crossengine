@@ -63,17 +63,15 @@ WebSocketServer::Impl::Impl(unsigned port)
 void WebSocketServer::Impl::onMessage(
 	server *s, websocketpp::connection_hdl hdl, message_ptr msg)
 {
-	std::cout << "on_message called with hdl: " << hdl.lock().get()
-		<< " and message: " << msg->get_payload()
-		<< std::endl;
+	std::cout << "got a message" << std::endl;
 
-	// check for a special command to instruct the server to stop listening so
-	// it can be cleanly exited.
-	if (msg->get_payload() == "stop-listening")
-	{
-		s->stop_listening();
-		return;
-	}
+	// // check for a special command to instruct the server to stop listening so
+	// // it can be cleanly exited.
+	// if (msg->get_payload() == "stop-listening")
+	// {
+	// 	s->stop_listening();
+	// 	return;
+	// }
 
 	try
 	{

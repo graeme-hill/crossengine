@@ -19,3 +19,6 @@
 [submodule "modules/xt"]
 	path = modules/xt
 	url = git@github.com:graeme-hill/crosstext
+[submodule "modules/xg"]
+	path = modules/xg
+	url = git@github.com:graeme-hill/crossguid
