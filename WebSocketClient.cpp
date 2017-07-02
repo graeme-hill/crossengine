@@ -113,9 +113,28 @@ WebSocketClient::WebSocketClient(std::string uri) :
 	_impl(std::make_unique<WebSocketClient::Impl>(uri))
 { }
 
+WebSocketClient::WebSocketClient() :
+	_impl(nullptr)
+{ }
+
 void WebSocketClient::send(flatbuffers::DetachedBuffer const &blob)
 {
 	_impl->send(blob);
+}
+
+bool WebSocketClient::isConnected()
+{
+	return _impl != nullptr;
+}
+
+WebSocketClient::WebSocketClient(WebSocketClient &&other) :
+	_impl(std::move(other._impl))
+{ }
+
+WebSocketClient &WebSocketClient::operator=(WebSocketClient &&other)
+{
+	_impl = std::move(other._impl);
+	return *this;
 }
 
 WebSocketClient::~WebSocketClient() = default;

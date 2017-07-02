@@ -5,6 +5,7 @@
 #include "FpsMonitor.hpp"
 #include "Keyboard.hpp"
 #include "InputController.hpp"
+#include "MessageBus.hpp"
 #include <iostream>
 
 BEGIN_XE_NAMESPACE
@@ -29,19 +30,20 @@ private:
 	TRenderer _renderer;
 	TGame _game;
 	FpsMonitor _fps;
+	MessageBus<typename TGame::MessageHandler> _bus;
 };
 
 template <typename TGame>
 Engine<TGame> *Engine<TGame>::instance = nullptr;
 
 template <typename TGame>
-void step()
+inline void step()
 {
 	Engine<TGame>::instance->step();
 }
 
 template <typename TGame>
-Engine<TGame>::Engine() :
+inline Engine<TGame>::Engine() :
 	_window("(>^_^)>", InputController(_keyboard)),
 	_renderer(),
 	_game(*this),
@@ -52,19 +54,19 @@ Engine<TGame>::Engine() :
 }
 
 template <typename TGame>
-void Engine<TGame>::run()
+inline void Engine<TGame>::run()
 {
 	_window.loop(::xe::step<TGame>);
 }
 
 template <typename TGame>
-Engine<TGame>::~Engine()
+inline Engine<TGame>::~Engine()
 {
 	std::cout << "game ended\n";
 }
 
 template <typename TGame>
-void Engine<TGame>::step()
+inline void Engine<TGame>::step()
 {
 	float delta = _fps.tick();
 	_window.startFrame();
@@ -75,7 +77,7 @@ void Engine<TGame>::step()
 }
 
 template <typename TGame>
-void play()
+inline void play()
 {
 	Engine<TGame> engine;
 	engine.run();

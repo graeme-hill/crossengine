@@ -11,8 +11,13 @@ BEGIN_XE_NAMESPACE
 class WebSocketClient
 {
 public:
+	WebSocketClient();
 	WebSocketClient(std::string uri);
+	WebSocketClient(WebSocketClient const &other) = delete;
+	WebSocketClient(WebSocketClient &&other);
+	WebSocketClient &operator=(WebSocketClient &&other);
 	void send(flatbuffers::DetachedBuffer const &blob);
+	bool isConnected();
 	~WebSocketClient();
 
 private:
