@@ -4,7 +4,7 @@
 #include <string>
 #include <memory>
 #include "Util.hpp"
-#include "flatbuffers/flatbuffers.h"
+#include "Blob.hpp"
 
 BEGIN_XE_NAMESPACE
 
@@ -12,11 +12,13 @@ class WebSocketClient
 {
 public:
 	WebSocketClient();
-	WebSocketClient(std::string uri);
+	WebSocketClient(
+		std::string uri,
+		std::function<void(Blob)> onMessage);
 	WebSocketClient(WebSocketClient const &other) = delete;
 	WebSocketClient(WebSocketClient &&other);
 	WebSocketClient &operator=(WebSocketClient &&other);
-	void send(flatbuffers::DetachedBuffer const &blob);
+	void send(Blob blob);
 	bool isConnected();
 	~WebSocketClient();
 

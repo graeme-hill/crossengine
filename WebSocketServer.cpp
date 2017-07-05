@@ -4,6 +4,7 @@
 #include <websocketpp/config/asio_no_tls.hpp>
 #include <websocketpp/server.hpp>
 #include <iostream>
+#include <set>
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -21,6 +22,11 @@ public:
 
 private:
 	void onMessage(server *s, websocketpp::connection_hdl hdl, message_ptr msg);
+	void onOpen(websocketpp::connection_hdl hdl);
+	void onClose(websocketpp::connection_hdl hdl);
+	std::set<
+		websocketpp::connection_hdl,
+		std::owner_less<websocketpp::connection_hdl>> _connections;
 };
 
 WebSocketServer::Impl::Impl(unsigned port)
@@ -40,6 +46,12 @@ WebSocketServer::Impl::Impl(unsigned port)
 		// Register our message handler
 		echoServer.set_message_handler(bind(
 			&WebSocketServer::Impl::onMessage, this, &echoServer, ::_1, ::_2));
+
+		// Register connection handlers so we can keep track of them
+		echoServer.set_open_handler(bind(
+			&WebSocketServer::Impl::onOpen, this, ::_1));
+		echoServer.set_close_handler(bind(
+			&WebSocketServer::Impl::onClose, this, ::_1));
 
 		// Listen on port 9002
 		echoServer.listen(9002);
@@ -75,13 +87,27 @@ void WebSocketServer::Impl::onMessage(
 
 	try
 	{
-		s->send(hdl, msg->get_payload(), msg->get_opcode());
+		for (auto conn : _connections)
+		{
+			s->send(conn, msg->get_payload(), msg->get_opcode());
+		}
+		//s->send(hdl, msg->get_payload(), msg->get_opcode());
 	}
 	catch (const websocketpp::lib::error_code &e)
 	{
 		std::cout << "Echo failed because: " << e
 			<< "(" << e.message() << ")" << std::endl;
 	}
+}
+
+void WebSocketServer::Impl::onOpen(websocketpp::connection_hdl hdl)
+{
+	_connections.insert(hdl);
+}
+
+void WebSocketServer::Impl::onClose(websocketpp::connection_hdl hdl)
+{
+	_connections.erase(hdl);
 }
 
 WebSocketServer::WebSocketServer(unsigned port) :

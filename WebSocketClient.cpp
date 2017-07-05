@@ -14,9 +14,11 @@ BEGIN_XE_NAMESPACE
 class WebSocketClient::Impl
 {
 public:
-	Impl(std::string uri);
+	Impl(
+		std::string uri,
+		std::function<void(Blob)> onMsgCallback);
 	~Impl();
-	void send(flatbuffers::DetachedBuffer const &blob);
+	void send(Blob blob);
 
 private:
 	using Client = websocketpp::client<websocketpp::config::asio_client>;
@@ -29,9 +31,13 @@ private:
 	std::thread _thread;
 	Client _client;
 	Connection _connection;
+	std::function<void(Blob)> _onMsgCallback;
 };
 
-WebSocketClient::Impl::Impl(std::string uri)
+WebSocketClient::Impl::Impl(
+	std::string uri,
+	std::function<void(Blob)> onMsgCallback) :
+	_onMsgCallback(onMsgCallback)
 {
 	try {
 		// Set logging to be pretty verbose (everything except message payloads)
@@ -70,16 +76,18 @@ WebSocketClient::Impl::Impl(std::string uri)
 
 WebSocketClient::Impl::~Impl()
 {
+	_connection->close(websocketpp::close::status::normal, "goodbye");
 	_thread.join();
 }
 
-void WebSocketClient::Impl::send(flatbuffers::DetachedBuffer const &blob)
+void WebSocketClient::Impl::send(Blob blob)
 {
+	std::cout << "send()\n";
 	websocketpp::lib::error_code err;
 
 	_client.send(
 		_connection->get_handle(),
-		blob.data(),
+		blob.dataPtr(),
 		blob.size(),
 		websocketpp::frame::opcode::binary,
 		err);
@@ -93,9 +101,13 @@ void WebSocketClient::Impl::send(flatbuffers::DetachedBuffer const &blob)
 void WebSocketClient::Impl::onMessage(
 	Client *c, ConnectionHandle hdl, Message msg)
 {
-	auto blob = msg->get_payload();
+	auto dataString = msg->get_payload();
+	Blob blob(
+		reinterpret_cast<const uint8_t *>(dataString.data()),
+		dataString.size());
+	_onMsgCallback(blob);
 
-	std::cout << ">>" << blob << std::endl;
+	//std::cout << ">>" << blob << std::endl;
 	// std::cout << "on_message called with hdl: " << hdl.lock().get()
 	// 		  << " and message: " << msg->get_payload()
 	// 		  << std::endl;
@@ -109,15 +121,17 @@ void WebSocketClient::Impl::onMessage(
 	// }
 }
 
-WebSocketClient::WebSocketClient(std::string uri) :
-	_impl(std::make_unique<WebSocketClient::Impl>(uri))
+WebSocketClient::WebSocketClient(
+	std::string uri,
+	std::function<void(Blob)> onMessage) :
+	_impl(std::make_unique<WebSocketClient::Impl>(uri, onMessage))
 { }
 
 WebSocketClient::WebSocketClient() :
 	_impl(nullptr)
 { }
 
-void WebSocketClient::send(flatbuffers::DetachedBuffer const &blob)
+void WebSocketClient::send(Blob blob)
 {
 	_impl->send(blob);
 }
@@ -129,7 +143,9 @@ bool WebSocketClient::isConnected()
 
 WebSocketClient::WebSocketClient(WebSocketClient &&other) :
 	_impl(std::move(other._impl))
-{ }
+{
+	other._impl = nullptr;
+}
 
 WebSocketClient &WebSocketClient::operator=(WebSocketClient &&other)
 {

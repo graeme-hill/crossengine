@@ -1,8 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <thread>
+#include <mutex>
 #include "flatbuffers/flatbuffers.h"
 #include "WebSocketClient.hpp"
+#include "Blob.hpp"
 
 BEGIN_XE_NAMESPACE
 
@@ -13,39 +16,49 @@ public:
 	MessageBus();
 	MessageBus(MessageBus const &) = delete;
 	MessageBus(MessageBus &&) = delete;
-	void post(flatbuffers::DetachedBuffer buffer);
-	void postLocal(flatbuffers::DetachedBuffer buffer);
+	void post(Blob blob);
+	void postLocal(Blob blob);
 	void receive(THandler &handler);
 	void connect(std::string uri);
 
 private:
-	std::vector<flatbuffers::DetachedBuffer> _pending;
+	std::vector<Blob> _pending;
 	WebSocketClient _client;
+	std::mutex _clientMutex;
 };
 
 template <typename THandler>
 MessageBus<THandler>::MessageBus()
-{ }
-
-template <typename THandler>
-void MessageBus<THandler>::post(flatbuffers::DetachedBuffer buffer)
 {
-	_client.send(buffer);
-	_pending.push_back(std::move(buffer));
+	std::cout << "msg bus created\n";
 }
 
 template <typename THandler>
-void MessageBus<THandler>::postLocal(flatbuffers::DetachedBuffer buffer)
+void MessageBus<THandler>::post(Blob blob)
 {
-	_pending.push_back(std::move(buffer));
+	std::cout << "post()\n";
+	std::lock_guard<std::mutex> lock(_clientMutex);
+	if (_client.isConnected())
+	{
+		std::cout << "connected = true\n";
+		_client.send(blob);
+	}
+	_pending.push_back(blob);
+}
+
+template <typename THandler>
+void MessageBus<THandler>::postLocal(Blob blob)
+{
+	std::lock_guard<std::mutex> lock(_clientMutex);
+	_pending.push_back(blob);
 }
 
 template <typename THandler>
 void MessageBus<THandler>::receive(THandler &handler)
 {
-	for (auto &buffer : _pending)
+	for (auto &blob : _pending)
 	{
-		handler.receiveBuffer(buffer);
+		handler.receiveBlob(blob);
 	}
 	_pending.clear();
 }
@@ -53,7 +66,11 @@ void MessageBus<THandler>::receive(THandler &handler)
 template <typename THandler>
 void MessageBus<THandler>::connect(std::string uri)
 {
-	_client = WebSocketClient(uri);
+	std::lock_guard<std::mutex> lock(_clientMutex);
+	_client = WebSocketClient(uri, [this](Blob blob)
+	{
+		postLocal(blob);
+	});
 }
 
 END_XE_NAMESPACE

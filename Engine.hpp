@@ -22,15 +22,16 @@ public:
 	Keyboard &keyboard() { return _keyboard; }
 	TWindow &window() { return _window; }
 	TRenderer &renderer() { return _renderer; }
+	MessageBus<TGame> &bus() { return _bus; }
 
 	static Engine<TGame> *instance;
 private:
 	Keyboard _keyboard;
 	TWindow _window;
 	TRenderer _renderer;
+	MessageBus<TGame> _bus;
 	TGame _game;
 	FpsMonitor _fps;
-	MessageBus<typename TGame::MessageHandler> _bus;
 };
 
 template <typename TGame>
@@ -47,7 +48,7 @@ inline Engine<TGame>::Engine() :
 	_window("(>^_^)>", InputController(_keyboard)),
 	_renderer(),
 	_game(*this),
-	_fps([](int c) { std::cout << c << "\n"; })
+	_fps([](int f, uint64_t e) { std::cout << f << " @ " << e << "\n"; })
 {
 	Engine<TGame>::instance = this;
 	std::cout << "Engine started with window '" << _window.title() << "'\n";
@@ -68,10 +69,10 @@ inline Engine<TGame>::~Engine()
 template <typename TGame>
 inline void Engine<TGame>::step()
 {
-	float delta = _fps.tick();
+	auto frame = _fps.tick();
 	_window.startFrame();
 	_renderer.startFrame();
-	_game.step(delta);
+	_game.step(frame);
 	_renderer.endFrame();
 	_window.endFrame();
 }
