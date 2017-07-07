@@ -23,6 +23,7 @@ public:
 	TWindow &window() { return _window; }
 	TRenderer &renderer() { return _renderer; }
 	MessageBus<TGame> &bus() { return _bus; }
+	TGame &game() { return _game; }
 
 	static Engine<TGame> *instance;
 private:
