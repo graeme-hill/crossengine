@@ -18,7 +18,9 @@ set(SOURCES
 	AssetReaders.cpp
 	WebSocketClient.cpp
 	WebSocketServer.cpp
-	Blob.cpp)
+	Blob.cpp
+	SmallGroupConnectionManager.cpp
+	SmallGroupServerDispatcher.cpp)
 
 option(JS "JS" OFF)
 

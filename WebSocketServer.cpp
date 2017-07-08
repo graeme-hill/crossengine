@@ -17,59 +17,65 @@ BEGIN_XE_NAMESPACE
 typedef websocketpp::server<websocketpp::config::asio> server;
 typedef server::message_ptr message_ptr;
 
-struct Group
-{
-	int id;
-	std::unordered_set<websocketpp::connection_hdl> connections;
-};
-
 class WebSocketServer::Impl
 {
 public:
-	Impl(unsigned port);
+	Impl(
+		unsigned port,
+		std::function<void(std::weak_ptr<void>)> onConnected,
+		std::function<void(std::weak_ptr<void>)> onDisconnected,
+		std::function<void(std::weak_ptr<void>, Blob)> onMessage);
+	void send(Blob blob, std::weak_ptr<void> conn);
 
 private:
 	void onMessage(server *s, websocketpp::connection_hdl hdl, message_ptr msg);
 	void onOpen(websocketpp::connection_hdl hdl);
 	void onClose(websocketpp::connection_hdl hdl);
-	void joinGroup(websocketpp::connection_hdl hdl, int groupId);
 
-	std::unordered_map<int, Group> _groups;
-	std::unordered_map<websocketpp::connection_hdl, int> _connections;
+	std::function<void(std::weak_ptr<void>)> _onConnectedCallback;
+	std::function<void(std::weak_ptr<void>)> _onDisconnectedCallback;
+	std::function<void(std::weak_ptr<void>, Blob)> _onMessageCallback;
+
+	server _server;
 };
 
-WebSocketServer::Impl::Impl(unsigned port)
+WebSocketServer::Impl::Impl(
+	unsigned port,
+	std::function<void(std::weak_ptr<void>)> onConnected,
+	std::function<void(std::weak_ptr<void>)> onDisconnected,
+	std::function<void(std::weak_ptr<void>, Blob)> onMessage) :
+	_onConnectedCallback(onConnected),
+	_onDisconnectedCallback(onDisconnected),
+	_onMessageCallback(onMessage)
 {
-	server echoServer;
-
 	try
 	{
 		// Set logging settings
-		echoServer.set_access_channels(websocketpp::log::alevel::all);
-		echoServer.clear_access_channels(
+		_server.set_access_channels(websocketpp::log::alevel::all);
+		_server.clear_access_channels(
 			websocketpp::log::alevel::frame_payload);
 
 		// Initialize Asio
-		echoServer.init_asio();
+		_server.init_asio();
 
 		// Register our message handler
-		echoServer.set_message_handler(bind(
-			&WebSocketServer::Impl::onMessage, this, &echoServer, ::_1, ::_2));
+		_server.set_message_handler(bind(
+			&WebSocketServer::Impl::onMessage, this, &_server, ::_1, ::_2));
 
 		// Register connection handlers so we can keep track of them
-		echoServer.set_open_handler(bind(
+		_server.set_open_handler(bind(
 			&WebSocketServer::Impl::onOpen, this, ::_1));
-		echoServer.set_close_handler(bind(
+		_server.set_close_handler(bind(
 			&WebSocketServer::Impl::onClose, this, ::_1));
 
 		// Listen on port 9002
-		echoServer.listen(9002);
+		_server.listen(9002);
 
 		// Start the server accept loop
-		echoServer.start_accept();
+		_server.start_accept();
 
 		// Start the ASIO io_service run loop
-		echoServer.run();
+		_server.run();
 	}
 	catch (websocketpp::exception const &e)
 	{
@@ -84,71 +90,54 @@ WebSocketServer::Impl::Impl(unsigned port)
 void WebSocketServer::Impl::onMessage(
 	server *s, websocketpp::connection_hdl hdl, message_ptr msg)
 {
-	std::cout << "got a message" << std::endl;
-
-	// // check for a special command to instruct the server to stop listening so
-	// // it can be cleanly exited.
-	// if (msg->get_payload() == "stop-listening")
-	// {
-	// 	s->stop_listening();
-	// 	return;
-	// }
-
-	// try
-	// {
-	// 	for (auto conn : _connections)
-	// 	{
-	// 		s->send(conn, msg->get_payload(), msg->get_opcode());
-	// 	}
-	// 	//s->send(hdl, msg->get_payload(), msg->get_opcode());
-	// }
-	// catch (const websocketpp::lib::error_code &e)
-	// {
-	// 	std::cout << "Echo failed because: " << e
-	// 		<< "(" << e.message() << ")" << std::endl;
-	// }
-}
-
-void WebSocketServer::Impl::joinGroup(
-	websocketpp::connection_hdl hdl, int groupId)
-{
-	auto existingGroup = _groups.find(groupId);
-	if (existingGroup != _groups.end())
-	{
-		std::get<Group>(*existingGroup).connections.insert(hdl);
-	}
-	else
-	{
-		_groups[groupId] = { groupId, { hdl } };
-	}
-	_connections[hdl] = groupId;
+	auto dataString = msg->get_payload();
+	Blob blob(
+		reinterpret_cast<const uint8_t *>(dataString.data()),
+		dataString.size());
+	_onMessageCallback(hdl, blob);
 }
 
 void WebSocketServer::Impl::onOpen(websocketpp::connection_hdl hdl)
 {
-	_connections[hdl] = -1;
+	_onConnectedCallback(hdl);
 }
 
 void WebSocketServer::Impl::onClose(websocketpp::connection_hdl hdl)
 {
-	auto groupId = _connections[hdl];
-	auto groupFindResult = _groups.find(groupId);
-	if (groupFindResult != _groups.end())
-	{
-		auto &group = std::get<Group>(*groupFindResult);
-		group.connections.erase(hdl);
-		if (group.connections.empty())
-		{
-			_groups.erase(group.id);
-		}
-	}
-	_connections.erase(hdl);
+	_onDisconnectedCallback(hdl);
 }
 
-WebSocketServer::WebSocketServer(unsigned port) :
-	_impl(std::make_unique<WebSocketServer::Impl>(port))
+void WebSocketServer::Impl::send(Blob blob, std::weak_ptr<void> conn)
+{
+	websocketpp::lib::error_code err;
+
+	_server.send(
+		conn,
+		blob.dataPtr(),
+		blob.size(),
+		websocketpp::frame::opcode::binary,
+		err);
+
+	if (err)
+	{
+		std::cout << "Error sending message: " << err.message() << std::endl;
+	}
+}
+
+WebSocketServer::WebSocketServer(
+	unsigned port,
+	std::function<void(std::weak_ptr<void>)> onConnected,
+	std::function<void(std::weak_ptr<void>)> onDisconnected,
+	std::function<void(std::weak_ptr<void>, Blob)> onMessage) :
+	_impl(std::make_unique<WebSocketServer::Impl>(
+		port, onConnected, onDisconnected, onMessage))
 { }
 
 WebSocketServer::~WebSocketServer() = default;
+
+void WebSocketServer::send(Blob blob, std::weak_ptr<void> conn)
+{
+	_impl->send(blob, conn);
+}
 
 END_XE_NAMESPACE

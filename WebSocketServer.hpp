@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Util.hpp"
+#include "Blob.hpp"
 #include <memory>
 #define ASIO_STANDALONE
 
@@ -9,8 +10,13 @@ BEGIN_XE_NAMESPACE
 class WebSocketServer
 {
 public:
-	WebSocketServer(unsigned port);
+	WebSocketServer(
+		unsigned port,
+		std::function<void(std::weak_ptr<void>)> onConnected,
+		std::function<void(std::weak_ptr<void>)> onDisconnected,
+		std::function<void(std::weak_ptr<void>, Blob)> onMessage);
 	~WebSocketServer();
+	void send(Blob blob, std::weak_ptr<void> conn);
 
 private:
 	class Impl;
@@ -18,29 +24,3 @@ private:
 };
 
 END_XE_NAMESPACE
-
-namespace std
-{
-	inline bool operator==(
-		const std::weak_ptr<void> &a, const std::weak_ptr<void> &b)
-	{
-		return true;
-	}
-
-	template <>
-	struct hash<std::weak_ptr<void>>
-	{
-		std::size_t operator()(const std::weak_ptr<void> &val) const
-		{
-			auto shared = val.lock();
-			if (shared)
-			{
-				return std::hash<decltype(shared)>()(shared);
-			}
-			else
-			{
-				return 0;
-			}
-		}
-	};
-}
