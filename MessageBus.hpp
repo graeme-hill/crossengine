@@ -4,7 +4,7 @@
 #include <thread>
 #include <mutex>
 #include "flatbuffers/flatbuffers.h"
-#include "WebSocketClient.hpp"
+#include "TWebSocketClient.hpp"
 #include "Blob.hpp"
 
 BEGIN_XE_NAMESPACE
@@ -25,7 +25,7 @@ public:
 
 private:
 	std::vector<Blob> _pending;
-	WebSocketClient _client;
+	TWebSocketClient _client;
 	std::mutex _clientMutex;
 };
 
@@ -79,7 +79,7 @@ template <typename THandler>
 void MessageBus<THandler>::connect(std::string uri)
 {
 	std::lock_guard<std::mutex> lock(_clientMutex);
-	_client = WebSocketClient(uri, [this](Blob blob)
+	_client = TWebSocketClient(uri, [this](Blob blob)
 	{
 		std::cout << "WebSocketClient callback dealie\n";
 		postLocal(blob);

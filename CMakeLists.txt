@@ -7,8 +7,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake")
 
 include_directories(modules)
 include_directories(modules/flatbuffers/include)
-include_directories(modules/asio/asio/include)
-include_directories(BEFORE modules/websocketpp)
 
 set(SOURCES
 	MeshData.cpp
@@ -16,8 +14,6 @@ set(SOURCES
 	InputController.cpp
 	File.cpp
 	AssetReaders.cpp
-	WebSocketClient.cpp
-	WebSocketServer.cpp
 	Blob.cpp
 	SmallGroupConnectionManager.cpp
 	SmallGroupServerDispatcher.cpp)
@@ -30,19 +26,25 @@ if(JS)
 		gles2/Gles2Renderer.cpp
 		gles2/Gles2Mesh.cpp
 		gles2/Gles2Shader.cpp
-		gles2/Gles2ShaderParameter.cpp)
+		gles2/Gles2ShaderParameter.cpp
+		jsws/EmscriptenWebSocketClient.cpp)
 
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe "-s USE_GLFW=3")
 	target_compile_definitions(xe PUBLIC PLATFORM_WEB GLM_FORCE_PURE)
 	target_compile_options(xe PUBLIC -std=c++14 -lglfw -lglfw3)
 else()
+	include_directories(modules/asio/asio/include)
+	include_directories(BEFORE modules/websocketpp)
+
 	list(APPEND SOURCES
 		glfw/GlfwWindow.cpp
 		gl/GlRenderer.cpp
 		gl/GlMesh.cpp
 		gl/GlShader.cpp
-		gl/GlShaderParameter.cpp)
+		gl/GlShaderParameter.cpp
+		wspp/WebSocketClient.cpp
+		wspp/WebSocketServer.cpp)
 
 	set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -58,7 +60,8 @@ else()
 
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe glfw glew)
-	target_compile_definitions(xe PUBLIC PLATFORM_LINUX PLATFORM_GLFW)
+	target_compile_definitions(xe PUBLIC
+		PLATFORM_LINUX PLATFORM_GLFW PLATFORM_WEBSOCKETPP)
 
 	# Require OpenGL
 	find_package(OpenGL REQUIRED)

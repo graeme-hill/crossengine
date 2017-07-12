@@ -2,7 +2,7 @@
 
 #include "Util.hpp"
 #include "SmallGroupConnectionManager.hpp"
-#include "WebSocketServer.hpp"
+#include "wspp/WebSocketServer.hpp"
 
 BEGIN_XE_NAMESPACE
 
