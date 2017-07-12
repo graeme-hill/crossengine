@@ -1,4 +1,5 @@
 #include "SmallGroupServerDispatcher.hpp"
+#include <iostream>
 
 BEGIN_XE_NAMESPACE
 
@@ -19,10 +20,13 @@ JoinResult SmallGroupServerDispatcher::joinGroup(int groupId)
 void SmallGroupServerDispatcher::broadcast(Blob blob)
 {
 	auto connections = _manager.connectionsInGroup(_conn);
+	std::cout << "broadcast()\n";
 	if (connections != nullptr)
 	{
+		std::cout << "connections != nullptr\n";
 		for (auto conn : *connections)
 		{
+			std::cout << "sending\n";
 			_sendFunc(blob, conn);
 		}
 	}

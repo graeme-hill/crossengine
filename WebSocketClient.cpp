@@ -101,6 +101,7 @@ void WebSocketClient::Impl::send(Blob blob)
 void WebSocketClient::Impl::onMessage(
 	Client *c, ConnectionHandle hdl, Message msg)
 {
+	std::cout << "WebSocketClient::Impl::onMessage()\n";
 	auto dataString = msg->get_payload();
 	Blob blob(
 		reinterpret_cast<const uint8_t *>(dataString.data()),

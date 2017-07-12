@@ -19,6 +19,8 @@ public:
 	void post(Blob blob);
 	void postLocal(Blob blob);
 	void receive(THandler &handler);
+	void receiveIf(
+		THandler &handler, std::function<bool(const Blob &)> predicate);
 	void connect(std::string uri);
 
 private:
@@ -56,9 +58,19 @@ void MessageBus<THandler>::postLocal(Blob blob)
 template <typename THandler>
 void MessageBus<THandler>::receive(THandler &handler)
 {
+	receiveIf(handler, [](const Blob &blob) { return true; });
+}
+
+template <typename THandler>
+void MessageBus<THandler>::receiveIf(
+	THandler &handler, std::function<bool(const Blob &)> predicate)
+{
 	for (auto &blob : _pending)
 	{
-		handler.receiveBlob(blob);
+		if (predicate(blob))
+		{
+			handler.receiveBlob(blob);
+		}
 	}
 	_pending.clear();
 }
@@ -69,6 +81,7 @@ void MessageBus<THandler>::connect(std::string uri)
 	std::lock_guard<std::mutex> lock(_clientMutex);
 	_client = WebSocketClient(uri, [this](Blob blob)
 	{
+		std::cout << "WebSocketClient callback dealie\n";
 		postLocal(blob);
 	});
 }
