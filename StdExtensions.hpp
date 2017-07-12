@@ -22,7 +22,8 @@ namespace std
 			auto shared = val.lock();
 			if (shared)
 			{
-				return std::hash<decltype(shared)>()(shared);
+				auto hashVal = std::hash<decltype(shared)>()(shared);
+				return hashVal;
 			}
 			else
 			{

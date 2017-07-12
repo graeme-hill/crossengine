@@ -20,9 +20,9 @@ private:
 	void onDisconnected(std::weak_ptr<void> conn);
 	void onMessage(std::weak_ptr<void> conn, Blob blob);
 
-	typename TConfig::Backend _backend;
 	typename TConfig::Handler _handler;
 	typename TConfig::ConnectionManager _connManager;
+	typename TConfig::Backend _backend;
 };
 
 template <typename TConfig>

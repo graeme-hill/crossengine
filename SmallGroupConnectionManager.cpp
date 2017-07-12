@@ -1,4 +1,5 @@
 #include "SmallGroupConnectionManager.hpp"
+#include <iostream>
 
 BEGIN_XE_NAMESPACE
 
