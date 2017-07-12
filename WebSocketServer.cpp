@@ -7,6 +7,8 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <chrono>
+#include <thread>
 
 using websocketpp::lib::placeholders::_1;
 using websocketpp::lib::placeholders::_2;
@@ -28,7 +30,11 @@ public:
 	void send(Blob blob, std::weak_ptr<void> conn);
 
 private:
+	constexpr static unsigned FAKE_LATENCY = 200;
+
 	void onMessage(server *s, websocketpp::connection_hdl hdl, message_ptr msg);
+	void forwardMessageToGame(
+		server *s, websocketpp::connection_hdl hdl, message_ptr msg);
 	void onOpen(websocketpp::connection_hdl hdl);
 	void onClose(websocketpp::connection_hdl hdl);
 
@@ -38,6 +44,8 @@ private:
 
 	server _server;
 };
+
+constexpr unsigned WebSocketServer::Impl::FAKE_LATENCY;
 
 WebSocketServer::Impl::Impl(
 	unsigned port,
@@ -90,6 +98,25 @@ WebSocketServer::Impl::Impl(
 void WebSocketServer::Impl::onMessage(
 	server *s, websocketpp::connection_hdl hdl, message_ptr msg)
 {
+	if (FAKE_LATENCY > 0)
+	{
+		std::thread([this, s, hdl, msg]()
+		{
+			std::this_thread::sleep_for(
+				std::chrono::milliseconds(FAKE_LATENCY));
+			forwardMessageToGame(s, hdl, msg);
+		}).detach();
+	}
+	else
+	{
+		forwardMessageToGame(s, hdl, msg);
+	}
+}
+
+void WebSocketServer::Impl::forwardMessageToGame(
+	server *s, websocketpp::connection_hdl hdl, message_ptr msg)
+{
+
 	auto dataString = msg->get_payload();
 	Blob blob(
 		reinterpret_cast<const uint8_t *>(dataString.data()),
