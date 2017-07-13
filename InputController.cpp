@@ -16,6 +16,7 @@ void InputController::newFrame()
 
 void InputController::keyDown(TKey key)
 {
+	std::cout << "keyDown\n";
 	_keyboard._justPressed.push_back(key);
 	_keyboard._down.push_back(key);
 }

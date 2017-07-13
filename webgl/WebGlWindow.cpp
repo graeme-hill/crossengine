@@ -79,7 +79,7 @@ WebGlWindow::~WebGlWindow()
 void WebGlWindow::loop(void (*func)(void))
 {
 	std::cout << "start looping now!\n";
-	emscripten_set_main_loop(func, 60, 1);
+	emscripten_set_main_loop(func, 0, 1);
 }
 
 void WebGlWindow::startFrame()
