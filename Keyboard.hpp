@@ -2,6 +2,7 @@
 
 #include "TKey.hpp"
 #include <vector>
+#include <iostream>
 
 BEGIN_XE_NAMESPACE
 

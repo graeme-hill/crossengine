@@ -1,5 +1,6 @@
 #include "Keyboard.hpp"
 #include <algorithm>
+#include <iostream>
 
 BEGIN_XE_NAMESPACE
 

@@ -78,12 +78,14 @@ void MessageBus<THandler>::receiveIf(
 template <typename THandler>
 void MessageBus<THandler>::connect(std::string uri)
 {
+	std::cout << "connecting to " << uri << std::endl;
 	std::lock_guard<std::mutex> lock(_clientMutex);
 	_client = TWebSocketClient(uri, [this](Blob blob)
 	{
 		std::cout << "WebSocketClient callback dealie\n";
 		postLocal(blob);
 	});
+	_client.isConnected();
 }
 
 END_XE_NAMESPACE

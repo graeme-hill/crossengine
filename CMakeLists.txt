@@ -32,7 +32,7 @@ if(JS)
 	add_library(xe ${SOURCES})
 	target_link_libraries(xe "-s USE_GLFW=3" "--js-library ${CMAKE_CURRENT_SOURCE_DIR}/jsws/library_xews.js")
 	target_compile_definitions(xe PUBLIC PLATFORM_WEB GLM_FORCE_PURE)
-	target_compile_options(xe PUBLIC -std=c++14 -lglfw -lglfw3 "--js-library jsws/library_xews.js")
+	target_compile_options(xe PUBLIC -std=c++14 -lglfw -lglfw3)
 else()
 	include_directories(modules/asio/asio/include)
 	include_directories(BEFORE modules/websocketpp)
@@ -52,6 +52,7 @@ else()
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/glfw)
 
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/glew)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/xg)
 
 	set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(FLATBUFFERS_INSTALL OFF CACHE BOOL "" FORCE)
@@ -59,7 +60,7 @@ else()
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/flatbuffers)
 
 	add_library(xe ${SOURCES})
-	target_link_libraries(xe glfw glew)
+	target_link_libraries(xe glfw glew xg)
 	target_compile_definitions(xe PUBLIC
 		PLATFORM_LINUX PLATFORM_GLFW PLATFORM_WEBSOCKETPP)
 

@@ -4,6 +4,29 @@
 
 BEGIN_XE_NAMESPACE
 
+WebGlWindowEventBuffer::WebGlWindowEventBuffer() : _buffer(20)
+{ }
+
+std::vector<WebGlWindowEvent>::iterator WebGlWindowEventBuffer::begin()
+{
+	return _buffer.begin();
+}
+
+std::vector<WebGlWindowEvent>::iterator WebGlWindowEventBuffer::end()
+{
+	return _buffer.end();
+}
+
+void WebGlWindowEventBuffer::clear()
+{
+	_buffer.clear();
+}
+
+void WebGlWindowEventBuffer::push(WebGlWindowEvent event)
+{
+	_buffer.push_back(event);
+}
+
 void framebufferResizeCallback(GLFWwindow *window, int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -12,25 +35,9 @@ void framebufferResizeCallback(GLFWwindow *window, int width, int height)
 void keyCallback(
 	GLFWwindow *glfwWindow, int key, int scanCode, int action, int mods)
 {
-	auto converted = (TKey)key;
 	auto obj = glfwGetWindowUserPointer(glfwWindow);
 	WebGlWindow *window = static_cast<WebGlWindow *>(obj);
-
-	switch (action)
-	{
-	case GLFW_PRESS:
-		window->_inputController.keyDown(converted);
-		break;
-	case GLFW_RELEASE:
-		window->_inputController.keyUp(converted);
-		break;
-	case GLFW_REPEAT:
-		break;
-	case GLFW_KEY_UNKNOWN:
-		break;
-	default:
-		break;
-	}
+	window->_eventBuffer.push({ key, scanCode, action, mods });
 }
 
 WebGlWindow::WebGlWindow(std::string title, InputController inputController) :
@@ -70,6 +77,32 @@ WebGlWindow::WebGlWindow(std::string title, InputController inputController) :
 	std::cout << "opening window\n";
 }
 
+void WebGlWindow::handleEvents()
+{
+	for (auto event : _eventBuffer)
+	{
+		auto converted = (TKey)event.key;
+
+		switch (event.action)
+		{
+		case GLFW_PRESS:
+			_inputController.keyDown(converted);
+			break;
+		case GLFW_RELEASE:
+			_inputController.keyUp(converted);
+			break;
+		case GLFW_REPEAT:
+			break;
+		case GLFW_KEY_UNKNOWN:
+			break;
+		default:
+			break;
+		}
+	}
+
+	_eventBuffer.clear();
+}
+
 WebGlWindow::~WebGlWindow()
 {
 	glfwTerminate();
@@ -85,6 +118,7 @@ void WebGlWindow::loop(void (*func)(void))
 void WebGlWindow::startFrame()
 {
 	_inputController.newFrame();
+	handleEvents();
 }
 
 void WebGlWindow::endFrame()

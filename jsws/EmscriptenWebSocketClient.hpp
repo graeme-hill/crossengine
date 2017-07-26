@@ -10,7 +10,7 @@ extern "C"
 	extern void xews_connect(
 		uintptr_t clientAddr,
 		const char *,
-		void (*onMessage)(uintptr_t),
+		void (*onMessage)(uintptr_t, uintptr_t, size_t),
 		void (*onConnected)(uintptr_t));
 
 	extern void xews_send(
@@ -20,7 +20,7 @@ extern "C"
 
 	extern void xews_move(uintptr_t oldClientAddr, uintptr_t newClientAddr);
 
-	void xews_onMessage(uintptr_t clientAddr);
+	void xews_onMessage(uintptr_t clientAddr, uintptr_t dataAddr, size_t size);
 
 	void xews_onConnected(uintptr_t clientAddr);
 }
@@ -36,16 +36,22 @@ public:
 		std::function<void(Blob)> onMessage);
 	EmscriptenWebSocketClient(EmscriptenWebSocketClient const &other) = delete;
 	EmscriptenWebSocketClient(EmscriptenWebSocketClient &&other);
+	EmscriptenWebSocketClient(EmscriptenWebSocketClient &other) = delete;
 	EmscriptenWebSocketClient &operator=(EmscriptenWebSocketClient &&other);
 	void send(Blob blob);
 	bool isConnected();
 	~EmscriptenWebSocketClient();
 
 private:
+	void setConnected();
 	std::function<void(Blob)> _onMessage;
 	bool _connected;
+	int _instanceId;
+	int _number = 24;
 
-	friend void ::xews_onMessage(uintptr_t clientAddr);
+	static int _instanceCount;
+	friend void ::xews_onMessage(
+		uintptr_t clientAddr, uintptr_t dataAddr, size_t size);
 	friend void ::xews_onConnected(uintptr_t clientAddr);
 };
 

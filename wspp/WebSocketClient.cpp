@@ -151,6 +151,7 @@ WebSocketClient::WebSocketClient(WebSocketClient &&other) :
 WebSocketClient &WebSocketClient::operator=(WebSocketClient &&other)
 {
 	_impl = std::move(other._impl);
+	other._impl = nullptr;
 	return *this;
 }
 

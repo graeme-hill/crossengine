@@ -49,7 +49,7 @@ inline Engine<TGame>::Engine() :
 	_window("(>^_^)>", InputController(_keyboard)),
 	_renderer(),
 	_game(*this),
-	_fps([](int f, uint64_t e) { std::cout << f << " @ " << e << "\n"; })
+	_fps([](int f, uint64_t e) { /*std::cout << f << " @ " << e << "\n";*/ })
 {
 	Engine<TGame>::instance = this;
 	std::cout << "Engine started with window '" << _window.title() << "'\n";
