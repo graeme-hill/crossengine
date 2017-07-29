@@ -73,7 +73,7 @@ bool EmscriptenWebSocketClient::isConnected()
 
 EmscriptenWebSocketClient::~EmscriptenWebSocketClient()
 {
-	std::cout << "dtor " << _instanceId << std::endl;;
+	std::cout << "dtor " << _instanceId << std::endl;
 }
 
 END_XE_NAMESPACE
@@ -82,11 +82,19 @@ extern "C"
 {
 	void xews_onMessage(uintptr_t clientAddr, uintptr_t dataAddr, size_t size)
 	{
-		std::cout << "xews_onMessage\n";
+		std::cout << "xews_onMessage dataAddr: " << dataAddr << std::endl;
 		auto client = reinterpret_cast<xe::EmscriptenWebSocketClient *>(
 			clientAddr);
 
 		auto data = reinterpret_cast<uint8_t *>(dataAddr);
+
+		std::cout << "BYTES: ";
+		for (unsigned i = 0; i < size; i++)
+		{
+			std::cout << static_cast<unsigned int>(data[i]) << ", ";
+		}
+		std::cout << std::endl;
+
 		client->_onMessage({ data, size });
 	}
 

@@ -103,12 +103,20 @@ void WebSocketClient::Impl::onMessage(
 {
 	std::cout << "WebSocketClient::Impl::onMessage()\n";
 	auto dataString = msg->get_payload();
+
+	std::cout << "BYTES: ";
+	for (unsigned i = 0; i < dataString.size(); i++)
+	{
+		std::cout << static_cast<unsigned int>(dataString.data()[i]) << ", ";
+	}
+	std::cout << std::endl;
+
 	Blob blob(
 		reinterpret_cast<const uint8_t *>(dataString.data()),
 		dataString.size());
 	_onMsgCallback(blob);
 
-	//std::cout << ">>" << blob << std::endl;
+	// std::cout << ">>" << blob << std::endl;
 	// std::cout << "on_message called with hdl: " << hdl.lock().get()
 	// 		  << " and message: " << msg->get_payload()
 	// 		  << std::endl;

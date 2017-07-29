@@ -22,16 +22,31 @@ var library = {
 
 		socket.onmessage = function (event) {
 			console.log("Got a message", event.data);
-			debugger;
 			var reader = new FileReader();
 			var currentClient = xews.resolveClient(client);
 			reader.addEventListener("loadend", function () {
-				debugger;
-				var data = reader.result;
-				var mem = Runtime.stackAlloc(data.byteLength);
-				writeArrayToMemory(data, mem);
+				var stack = null;
+				if (!stack) stack = Runtime.stackSave();
+
+				var buffer = reader.result;
+				var typedArray = new Uint8Array(buffer, 0, buffer.byteLength);
+				var mem = Runtime.stackAlloc(typedArray.length);
+				//var dataAddr = Module.getValue(mem, "i8*");
+				var size = typedArray.length;
+
+				console.log("dataAddr (js): " + mem);
+
+				console.log("BYTES----------------");
+				for (var i = 0; i < size; i++) {
+					console.log(typedArray[i]);
+				}
+				console.log("----------------BYTES");
+
+				writeArrayToMemory(typedArray, mem);
 				Runtime.dynCall(
-					"viii", onMessage[currentClient, dataAddr, size]);
+					"viii", onMessage, [currentClient, mem, size]);
+
+				if (stack) Runtime.stackRestore(stack);
 			});
 			reader.readAsArrayBuffer(event.data);
 
