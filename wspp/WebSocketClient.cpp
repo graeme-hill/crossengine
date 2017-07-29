@@ -82,7 +82,6 @@ WebSocketClient::Impl::~Impl()
 
 void WebSocketClient::Impl::send(Blob blob)
 {
-	std::cout << "send()\n";
 	websocketpp::lib::error_code err;
 
 	_client.send(
@@ -101,33 +100,12 @@ void WebSocketClient::Impl::send(Blob blob)
 void WebSocketClient::Impl::onMessage(
 	Client *c, ConnectionHandle hdl, Message msg)
 {
-	std::cout << "WebSocketClient::Impl::onMessage()\n";
 	auto dataString = msg->get_payload();
-
-	std::cout << "BYTES: ";
-	for (unsigned i = 0; i < dataString.size(); i++)
-	{
-		std::cout << static_cast<unsigned int>(dataString.data()[i]) << ", ";
-	}
-	std::cout << std::endl;
 
 	Blob blob(
 		reinterpret_cast<const uint8_t *>(dataString.data()),
 		dataString.size());
 	_onMsgCallback(blob);
-
-	// std::cout << ">>" << blob << std::endl;
-	// std::cout << "on_message called with hdl: " << hdl.lock().get()
-	// 		  << " and message: " << msg->get_payload()
-	// 		  << std::endl;
-	//
-	// websocketpp::lib::error_code ec;
-	//
-	// c->send(hdl, msg->get_payload(), msg->get_opcode(), ec);
-	// if (ec)
-	// {
-	// 	std::cout << "Echo failed because: " << ec.message() << std::endl;
-	// }
 }
 
 WebSocketClient::WebSocketClient(

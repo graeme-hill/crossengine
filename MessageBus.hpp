@@ -31,9 +31,7 @@ private:
 
 template <typename THandler>
 MessageBus<THandler>::MessageBus()
-{
-	std::cout << "msg bus created\n";
-}
+{ }
 
 template <typename THandler>
 void MessageBus<THandler>::post(Blob blob)

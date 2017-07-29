@@ -9,19 +9,16 @@ var library = {
 				return client;
 			} else {
 				var alias = this.aliases[client];
-				console.log('RESOLVING ALIAS: ' + client + ' --> ' + alias);
 				return this.resolveClient(alias);
 			}
 		}
 	},
 
 	xews_connect: function (client, uri, onMessage, onConnected) {
-		console.log('xews_connect clientAddr: ' + client);
 		var socket = new WebSocket(Pointer_stringify(uri));
 		xews.sockets[client] = socket;
 
 		socket.onmessage = function (event) {
-			console.log("Got a message", event.data);
 			var reader = new FileReader();
 			var currentClient = xews.resolveClient(client);
 			reader.addEventListener("loadend", function () {
@@ -31,16 +28,7 @@ var library = {
 				var buffer = reader.result;
 				var typedArray = new Uint8Array(buffer, 0, buffer.byteLength);
 				var mem = Runtime.stackAlloc(typedArray.length);
-				//var dataAddr = Module.getValue(mem, "i8*");
 				var size = typedArray.length;
-
-				console.log("dataAddr (js): " + mem);
-
-				console.log("BYTES----------------");
-				for (var i = 0; i < size; i++) {
-					console.log(typedArray[i]);
-				}
-				console.log("----------------BYTES");
 
 				writeArrayToMemory(typedArray, mem);
 				Runtime.dynCall(
@@ -49,16 +37,10 @@ var library = {
 				if (stack) Runtime.stackRestore(stack);
 			});
 			reader.readAsArrayBuffer(event.data);
-
-			// var currentClient = xews.resolveClient(client);
-			// var dataAddr = Module.getValue(event.data);
-			// var size = event.data.size;
-			// Runtime.dynCall("vi", onMessage, [currentClient, dataAddr, size]);
 		};
 
 		socket.onopen = function (event) {
 			var currentClient = xews.resolveClient(client);
-			console.log("Connection opened; currentClient: " + currentClient);
 			Runtime.dynCall("vi", onConnected, [currentClient]);
 		};
 	},
@@ -66,7 +48,7 @@ var library = {
 	xews_send: function (client, data, size) {
 		var socket = xews.sockets[client];
 		if (socket && socket.readyState === 1) {
-			var bytes = {{{ makeHEAPView('U8', 'data', 'data + size') }}}; //new Uint8Array();
+			var bytes = {{{ makeHEAPView('U8', 'data', 'data + size') }}};
 			socket.send(bytes);
 		}
 	},
@@ -90,7 +72,6 @@ var library = {
 	},
 
 	xews_move: function (oldClient, newClient) {
-		console.log('xews_move old: ' + oldClient + ' new: ' + newClient);
 		var socket = xews.sockets[oldClient];
 		if (socket) {
 			xews.sockets[newClient] = socket;
