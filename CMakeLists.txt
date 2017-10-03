@@ -55,13 +55,16 @@ else()
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/glew)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/xg)
 
+	set(XT_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/xt)
+
 	set(FLATBUFFERS_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 	set(FLATBUFFERS_INSTALL OFF CACHE BOOL "" FORCE)
 	set(FLATBUFFERS_BUILD_SHAREDLIB OFF CACHE BOOL "" FORCE)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/modules/flatbuffers)
 
 	add_library(xe ${SOURCES})
-	target_link_libraries(xe glfw glew xg)
+	target_link_libraries(xe glfw glew xg xt)
 	target_compile_definitions(xe PUBLIC
 		PLATFORM_LINUX PLATFORM_GLFW PLATFORM_WEBSOCKETPP)
 

@@ -211,4 +211,100 @@ ModelData readObjFileFlat(std::string path)
 	return data;
 }
 
+unsigned getPlyVertCount(std::ifstream &infile)
+{
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+		std::string element;
+		iss >> element;
+
+		if (element == "element")
+		{
+			std::string type;
+			iss >> type;
+			if (type == "vertex")
+			{
+				unsigned count;
+				iss >> count;
+				return count;
+			}
+		}
+	}
+
+	return 0;
+}
+
+void skipRemainingPlyHeader(std::ifstream &infile)
+{
+	std::string line;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+		std::string word;
+		iss >> word;
+
+		if (word == "end_header")
+		{
+			break;
+		}
+		else
+		{
+			std::cout << word << std::endl;
+		}
+	}
+}
+
+ModelData readPlyFile(std::string path)
+{
+	ModelData data;
+	std::ifstream infile(path);
+
+	// find vertex count in header
+	auto vertCount = getPlyVertCount(infile);
+
+	// read until end of header
+	skipRemainingPlyHeader(infile);
+
+	// read vertex info
+	std::string line;
+	for (unsigned i = 0; i < vertCount && std::getline(infile, line); i++)
+	{
+		std::istringstream iss(line);
+		float x, y, z, nx, ny, nz, r, g, b;
+		iss >> x >> y >> z >> nx >> ny >> nz >> r >> g >> b;
+		data.positions.push_back(x);
+		data.positions.push_back(z);
+		data.positions.push_back(y);
+
+		data.normals.push_back(nx);
+		data.normals.push_back(nz);
+		data.normals.push_back(ny);
+
+		data.colors.push_back(r / 255.0f);
+		data.colors.push_back(g / 255.0f);
+		data.colors.push_back(b / 255.0f);
+	}
+
+	// read index info (faces)
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+		unsigned vertsInFace, a, b, c;
+		iss >> vertsInFace;
+
+		if (vertsInFace == 3)
+		{
+			// triangle
+			iss >> a >> b >> c;
+			data.indices.push_back(a);
+			data.indices.push_back(c);
+			data.indices.push_back(b);
+		}
+	}
+
+	return data;
+}
+
 END_XE_NAMESPACE

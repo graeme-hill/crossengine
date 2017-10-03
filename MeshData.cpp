@@ -1,5 +1,5 @@
 #include "MeshData.hpp"
-
+#include <iostream>
 #include <numeric>
 
 BEGIN_XE_NAMESPACE
@@ -10,6 +10,12 @@ std::vector<float> interleave(std::vector<VertexData> data)
 		return std::vector<float>();
 
 	auto vertCount = data[0].data().size() / data[0].valuesPerVert();
+
+	if (vertCount == 0)
+	{
+		std::cout << "ASSERTION FAILURE: vertCount is zero\n";
+	}
+
 	unsigned size = 0;
 	for (unsigned i = 0; i < data.size(); i++)
 	{
